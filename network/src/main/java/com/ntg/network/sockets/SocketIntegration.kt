@@ -43,7 +43,6 @@ class SocketIntegration(
     private val baseWsUrl: String,
     private val tokenStore: TokenStore,
     private val handler: ChangeHandler,
-    client: OkHttpClient? = null,
     enableLogging: Boolean = false,
 ) {
     private val client: OkHttpClient =
