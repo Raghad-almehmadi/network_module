@@ -41,11 +41,23 @@ private const val HEARTBEAT_INTERVAL_MS = 28_000L // ~28s (before Phoenix’s 30
  */
 class SocketIntegration(
     private val baseWsUrl: String,
-    private val client: OkHttpClient,
     private val tokenStore: TokenStore,
     private val handler: ChangeHandler,
-    tag: String = "LMD-WS",
+    client: OkHttpClient? = null,
+    enableLogging: Boolean = false,
 ) {
+    private val client: OkHttpClient =
+        client ?: OkHttpClient.Builder()
+            .pingInterval(30, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .apply {
+                if (enableLogging) {
+                    addInterceptor(
+                        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+                    )
+                }
+            }
+            .build()
 
     private val logTag = tag
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
